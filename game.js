@@ -1,4 +1,5 @@
-// Mob Control عربية - نسخة مبسطة قريبة من اللعبة الأصلية
+// Mob Control عربية - نسخة مبسطة مع تحريك المدفع وإطلاق الجنود
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
@@ -10,7 +11,7 @@ const restartBtn = document.getElementById("restart");
 let level = 1, score = 0, mobCount = 10, baseHP = 15, baseMaxHP = 15;
 let mobs = [], gates = [];
 let firing = false, fireX = canvas.width/2;
-let gameOver = false;
+let gameOver = false, lastFireTime = 0;
 
 function resetGame() {
   mobs = [];
@@ -185,23 +186,54 @@ function gameLoop() {
   draw();
   requestAnimationFrame(gameLoop);
 }
-// تحريك المدفع
-canvas.addEventListener("pointerdown",e=>{
-  firing=true;
-  moveTo(e);
+
+// تحريك المدفع مع الضغط أو السحب
+function getPointerX(e) {
+  let rect = canvas.getBoundingClientRect();
+  // دعم اللمس والماوس
+  if(e.touches && e.touches.length > 0) {
+    return Math.max(32, Math.min(368, e.touches[0].clientX - rect.left));
+  }
+  return Math.max(32, Math.min(368, e.clientX - rect.left));
+}
+
+canvas.addEventListener("pointerdown", e => {
+  firing = true;
+  fireX = getPointerX(e);
+  fireMob();
 });
-canvas.addEventListener("pointermove",e=>{
-  if(firing) moveTo(e);
+canvas.addEventListener("pointermove", e => {
+  if(firing) {
+    fireX = getPointerX(e);
+    // إطلاق جندي كل 120 مللي ثانية أثناء السحب
+    let now = performance.now();
+    if(now - lastFireTime > 120) {
+      fireMob();
+      lastFireTime = now;
+    }
+  }
 });
 canvas.addEventListener("pointerup",()=>{firing=false;});
 canvas.addEventListener("pointerleave",()=>{firing=false;});
-function moveTo(e){
-  let rect=canvas.getBoundingClientRect();
-  let x=(e.touches?e.touches[0].clientX:e.clientX)-rect.left;
-  x=Math.max(32,Math.min(368,x));
-  fireX=x;
-  if(!gameOver) fireMob();
-}
+
+canvas.addEventListener("touchstart", e => {
+  firing = true;
+  fireX = getPointerX(e);
+  fireMob();
+});
+canvas.addEventListener("touchmove", e => {
+  if(firing) {
+    fireX = getPointerX(e);
+    let now = performance.now();
+    if(now - lastFireTime > 120) {
+      fireMob();
+      lastFireTime = now;
+    }
+  }
+});
+canvas.addEventListener("touchend",()=>{firing=false;});
+canvas.addEventListener("touchcancel",()=>{firing=false;});
+
 restartBtn.onclick=()=>{
   if(baseHP<=0){ // فزت: انتقل للمرحلة التالية
     resetGame();
