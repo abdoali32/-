@@ -1,24 +1,87 @@
-// Mob Control عربية - نسخة مبسطة مع تحريك المدفع وإطلاق الجنود
+// Mob Control عربية مطورة
 
+// --- متغيرات الواجهة ---
+const mainMenu = document.getElementById('main-menu');
+const gameArea = document.getElementById('game-area');
+const shopPopup = document.getElementById('shop');
+const settingsPopup = document.getElementById('settings');
+const coinsBar = document.getElementById('coins');
+const coinsHud = document.getElementById('coins-hud');
+
+// --- متغيرات اللعبة ---
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
-
 const mobCountEl = document.getElementById("mobCount");
 const scoreEl = document.getElementById("score");
 const levelEl = document.getElementById("level");
+const playerHealthEl = document.getElementById("player-health");
 const restartBtn = document.getElementById("restart");
 
+// --- الحالة ---
 let level = 1, score = 0, mobCount = 10, baseHP = 15, baseMaxHP = 15;
-let mobs = [], gates = [];
+let coins = 0, playerMaxHealth = 5, playerHealth = 5, mobStartCount = 10;
+let mobs = [], gates = [], enemyBullets = [];
 let firing = false, fireX = canvas.width/2;
 let gameOver = false, lastFireTime = 0;
+let enemyFireTimer = 0, enemyFireInterval = 1800; // ms
 
+// --- واجهة ---
+function showMenu() {
+  mainMenu.classList.add('active');
+  gameArea.classList.remove('active');
+  updateCoinsUI();
+}
+function startGame() {
+  mainMenu.classList.remove('active');
+  gameArea.classList.add('active');
+  resetGame();
+}
+function backToMenu() {
+  showMenu();
+}
+function openShop() { shopPopup.classList.add('active'); }
+function closeShop() { shopPopup.classList.remove('active'); }
+function openSettings() { settingsPopup.classList.add('active'); }
+function closeSettings() { settingsPopup.classList.remove('active'); }
+function updateCoinsUI() {
+  coinsBar.textContent = coins;
+  coinsHud.textContent = coins;
+}
+
+// --- متجر ---
+function buyUpgrade(type) {
+  if (type === "health") {
+    if (coins >= 2) {
+      coins -= 2;
+      playerMaxHealth++;
+      playerHealth = playerMaxHealth;
+      updateCoinsUI();
+      alert("تمت زيادة الصحة!");
+    } else {
+      alert("لا يوجد عملات كافية!");
+    }
+  }
+  if (type === "mob") {
+    if (coins >= 4) {
+      coins -= 4;
+      mobStartCount += 5;
+      updateCoinsUI();
+      alert("تمت زيادة عدد الجنود عند البدء!");
+    } else {
+      alert("لا يوجد عملات كافية!");
+    }
+  }
+}
+
+// --- لعبة ---
 function resetGame() {
   mobs = [];
   gates = [];
-  mobCount = 10 + (level-1)*3;
+  enemyBullets = [];
+  mobCount = mobStartCount + (level-1)*3;
   baseHP = 15 + (level-1)*4;
   baseMaxHP = baseHP;
+  playerHealth = playerMaxHealth;
   firing = false;
   fireX = canvas.width/2;
   gameOver = false;
@@ -31,6 +94,8 @@ function updateUI() {
   mobCountEl.textContent = mobCount;
   scoreEl.textContent = score;
   levelEl.textContent = level;
+  playerHealthEl.textContent = playerHealth;
+  updateCoinsUI();
 }
 function createGates() {
   gates = [];
@@ -58,7 +123,7 @@ function draw() {
   // الأرضية
   ctx.fillStyle = "#d0ecff";
   ctx.fillRect(0, 560, 400, 40);
-  // القاعدة
+  // قاعدة العدو (حمراء)
   ctx.save();
   ctx.translate(200, 70);
   ctx.fillStyle = "#e74c3c";
@@ -72,7 +137,7 @@ function draw() {
   ctx.font = "bold 15px Cairo";
   ctx.textAlign = "center";
   ctx.fillText("العدو",0,5);
-  // شريط الصحة
+  // شريط صحة العدو
   ctx.fillStyle = "#222";
   ctx.fillRect(-30,35,60,10);
   ctx.fillStyle = "#0f3";
@@ -80,10 +145,21 @@ function draw() {
   ctx.strokeStyle = "#fff";
   ctx.strokeRect(-30,35,60,10);
   ctx.restore();
-  // رسم البوابات
+  // قذائف العدو
+  enemyBullets.forEach(b=>{
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(b.x,b.y,12,0,Math.PI*2);
+    ctx.fillStyle="#f7c531";
+    ctx.shadowColor="#f7c531";
+    ctx.shadowBlur=10;
+    ctx.fill();
+    ctx.restore();
+  });
+  // البوابات
   gates.forEach(g=>{
     ctx.save();
-    ctx.globalAlpha = g.used ? 0.28 : 1;
+    ctx.globalAlpha = g.used ? 0.24 : 1;
     ctx.fillStyle = g.color;
     ctx.fillRect(g.x-30, g.y-14, g.w, g.h);
     ctx.strokeStyle = "#fff";
@@ -95,7 +171,7 @@ function draw() {
     ctx.fillText(g.label, g.x, g.y+7);
     ctx.restore();
   });
-  // رسم الجنود
+  // الجنود
   mobs.forEach(m=>{
     if(!m.active) return;
     ctx.save();
@@ -116,13 +192,26 @@ function draw() {
   ctx.arc(0,13,22,Math.PI*0.8,Math.PI*2.2);
   ctx.fill();
   ctx.restore();
+  // صحة اللاعب (أسفل)
+  ctx.save();
+  ctx.fillStyle="#444";
+  ctx.fillRect(110,565,180,15);
+  ctx.fillStyle="#0ff";
+  ctx.fillRect(110,565,180*(playerHealth/playerMaxHealth),15);
+  ctx.strokeStyle="#fff";
+  ctx.strokeRect(110,565,180,15);
+  ctx.font="bold 14px Cairo";
+  ctx.fillStyle="#fff";
+  ctx.textAlign="center";
+  ctx.fillText("صحتك",200,577);
+  ctx.restore();
   // رسالة خسارة أو فوز
   if(gameOver){
     ctx.save();
-    ctx.globalAlpha=0.92;
+    ctx.globalAlpha=0.93;
     ctx.fillStyle="#fff";
     ctx.fillRect(60,230,280,90);
-    ctx.fillStyle="#e74c3c";
+    ctx.fillStyle=baseHP<=0?"#2196f3":"#e74c3c";
     ctx.font="bold 32px Cairo";
     ctx.textAlign="center";
     ctx.fillText(baseHP<=0?"فزت!":"انتهت المحاولة!",200,270);
@@ -135,10 +224,12 @@ function draw() {
 function updateMobs() {
   mobs.forEach(m=>{
     if(m.active) m.y -= 5;
-    // التصادم مع القاعدة
+    // التصادم مع القاعدة (العدو)
     if(m.active && Math.hypot(m.x-200,m.y-70)<38) {
       baseHP--;
       score+=2;
+      coins+=2; // العملات عند إصابة العدو
+      updateCoinsUI();
       m.active=false;
       updateUI();
       if(baseHP<=0) winLevel();
@@ -159,10 +250,36 @@ function updateMobs() {
         updateUI();
       }
     });
+    // التصادم مع قذائف العدو
+    enemyBullets.forEach(b=>{
+      if(m.active && Math.hypot(m.x-b.x,m.y-b.y)<16){
+        m.active=false;
+      }
+    });
     // خارج الشاشة
     if(m.y<0) m.active=false;
   });
   mobs = mobs.filter(m=>m.active);
+}
+function updateEnemyBullets() {
+  // تحريك القذائف
+  enemyBullets.forEach(b=>{
+    b.y += 5 + Math.min(level,8);
+    // تصطدم بمدفع اللاعب
+    if(Math.abs(b.y-540)<18 && Math.abs(b.x-fireX)<32 && !gameOver){
+      playerHealth--;
+      b.hit=true;
+      updateUI();
+      if(playerHealth<=0) lose();
+    }
+  });
+  enemyBullets = enemyBullets.filter(b=>!b.hit && b.y<canvas.height+20);
+}
+function enemyShoot() {
+  // كل فترة: العدو يرمي قذيفة عشوائية
+  let spread = 120 + Math.random()*160;
+  let bulletX = 200 + (Math.random()-0.5)*spread;
+  enemyBullets.push({x: bulletX, y: 70, hit:false});
 }
 function lose() {
   gameOver=true;
@@ -173,14 +290,23 @@ function lose() {
 function winLevel() {
   gameOver=true;
   score+=level*10;
+  coins+=level*3;
   level++;
   restartBtn.textContent="التالي";
   restartBtn.style.display="inline-block";
+  updateCoinsUI();
   draw();
 }
-function gameLoop() {
+function gameLoop(ts) {
   if(!gameOver){
     updateMobs();
+    updateEnemyBullets();
+    // العدو يهاجم كل فترة
+    if(!enemyFireTimer) enemyFireTimer=ts;
+    if(ts-enemyFireTimer > enemyFireInterval-Math.min(level*80,800)) {
+      enemyShoot();
+      enemyFireTimer=ts;
+    }
     if(mobCount<=0 && mobs.length==0 && baseHP>0) lose();
   }
   draw();
@@ -190,22 +316,20 @@ function gameLoop() {
 // تحريك المدفع مع الضغط أو السحب
 function getPointerX(e) {
   let rect = canvas.getBoundingClientRect();
-  // دعم اللمس والماوس
   if(e.touches && e.touches.length > 0) {
     return Math.max(32, Math.min(368, e.touches[0].clientX - rect.left));
   }
   return Math.max(32, Math.min(368, e.clientX - rect.left));
 }
-
 canvas.addEventListener("pointerdown", e => {
   firing = true;
   fireX = getPointerX(e);
   fireMob();
+  lastFireTime = performance.now();
 });
 canvas.addEventListener("pointermove", e => {
   if(firing) {
     fireX = getPointerX(e);
-    // إطلاق جندي كل 120 مللي ثانية أثناء السحب
     let now = performance.now();
     if(now - lastFireTime > 120) {
       fireMob();
@@ -215,11 +339,11 @@ canvas.addEventListener("pointermove", e => {
 });
 canvas.addEventListener("pointerup",()=>{firing=false;});
 canvas.addEventListener("pointerleave",()=>{firing=false;});
-
 canvas.addEventListener("touchstart", e => {
   firing = true;
   fireX = getPointerX(e);
   fireMob();
+  lastFireTime = performance.now();
 });
 canvas.addEventListener("touchmove", e => {
   if(firing) {
@@ -242,6 +366,6 @@ restartBtn.onclick=()=>{
     resetGame();
   }
 };
-// بدء اللعبة
-resetGame();
-gameLoop();
+
+showMenu();
+requestAnimationFrame(gameLoop);
