@@ -1,275 +1,222 @@
-// إعداد
-let playerArmy = 20;
-let enemyArmy = 20;
-let playerDefend = false;
-let enemyDefend = false;
+// Mob Control - نسخة عربية مبسطة
+const canvas = document.getElementById("game-canvas");
+const ctx = canvas.getContext("2d");
+const mobCountEl = document.getElementById("mob-count");
+const scoreEl = document.getElementById("score");
+const levelEl = document.getElementById("level");
+const restartBtn = document.getElementById("restart");
+
+let level = 1, score = 0;
+let mobs = [], gates = [];
+let mobCount = 10, mobColor = "#35aaff";
+let baseHP = 15, baseMaxHP = 15;
+let firing = false, fireX = canvas.width/2, fireTargetX = canvas.width/2;
 let gameOver = false;
 
-const playerArmyEl = document.getElementById("player-army");
-const enemyArmyEl = document.getElementById("enemy-army");
-const attackBtn = document.getElementById("attack-btn");
-const defendBtn = document.getElementById("defend-btn");
-const restartBtn = document.getElementById("restart-btn");
-const msgEl = document.getElementById("msg");
-const canvas = document.getElementById("battle-canvas");
-const ctx = canvas.getContext("2d");
-
-// رسم الجيوش بشكل عصري
-function drawArmies() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  // جيش اللاعب: دوائر زرقاء
-  for(let i=0; i<playerArmy; i++) {
-    let row = Math.floor(i/5), col = i%5;
-    ctx.beginPath();
-    ctx.arc(60+col*25, 220-row*24, 12, 0, 2*Math.PI);
-    ctx.fillStyle = playerDefend ? "#38f" : "#66e2ff";
-    ctx.strokeStyle = "#0f5";
-    ctx.lineWidth = playerDefend ? 3 : 1;
-    ctx.fill();
-    ctx.stroke();
-  }
-  // جيش العدو: دوائر حمراء
-  for(let i=0; i<enemyArmy; i++) {
-    let row = Math.floor(i/5), col = i%5;
-    ctx.beginPath();
-    ctx.arc(340-col*25, 70+row*24, 12, 0, 2*Math.PI);
-    ctx.fillStyle = enemyDefend ? "#f44" : "#ff4f7a";
-    ctx.strokeStyle = "#f20";
-    ctx.lineWidth = enemyDefend ? 3 : 1;
-    ctx.fill();
-    ctx.stroke();
-  }
-  // أرض المعركة
-  ctx.beginPath();
-  ctx.moveTo(0, 150); ctx.lineTo(400, 150);
-  ctx.strokeStyle = "#fff3";
-  ctx.setLineDash([6,6]);
-  ctx.lineWidth = 2;
-  ctx.stroke();
-  ctx.setLineDash([]);
-}
-
-function updateStats() {
-  playerArmyEl.textContent = playerArmy;
-  enemyArmyEl.textContent = enemyArmy;
-  drawArmies();
-}
-
-function gameMessage(txt, color="#fff") {
-  msgEl.textContent = txt;
-  msgEl.style.color = color;
-}
-
-function endGame(winner) {
-  gameOver = true;
-  attackBtn.style.display = "none";
-  defendBtn.style.display = "none";
-  restartBtn.style.display = "inline-block";
-  if(winner === "player") gameMessage("فزت! 🏆", "#0f0");
-  else if(winner === "enemy") gameMessage("خسرت! 👹", "#ff4f7a");
-  else gameMessage("تعادل!", "#ffe066");
-}
-
-// ذكاء اصطناعي بسيط: عشوائي يهاجم أو يدافع
-function enemyTurn() {
-  if(gameOver) return;
-  setTimeout(()=>{
-    if(enemyArmy <= 0) return endGame("player");
-    if(playerArmy <= 0) return endGame("enemy");
-    let action = Math.random()<0.5 ? "attack" : "defend";
-    if(action==="attack") {
-      enemyDefend = false;
-      let hit = Math.floor(Math.random()*3)+2;
-      if(playerDefend) hit = Math.floor(hit/2);
-      playerArmy -= hit;
-      if(playerArmy<0) playerArmy=0;
-      gameMessage("👹 العدو هجم عليك وخسرت " + hit + " جندي!", "#ffb347");
-      playerDefend = false;
-    } else {
-      enemyDefend = true;
-      gameMessage("العدو في وضع الدفاع!", "#aaa");
-    }
-    updateStats();
-    if(playerArmy<=0) endGame("enemy");
-    else if(enemyArmy<=0) endGame("player");
-  }, 1200);
-}
-
-// هجوم اللاعب
-attackBtn.onclick = ()=>{
-  if(gameOver) return;
-  let hit = Math.floor(Math.random()*4)+2;
-  if(enemyDefend) hit = Math.floor(hit/2);
-  enemyArmy -= hit;
-  if(enemyArmy<0) enemyArmy=0;
-  gameMessage("🚀 هاجمت العدو وخسر " + hit + " جندي!", "#0ff");
-  enemyDefend = false;
-  updateStats();
-  if(enemyArmy<=0) endGame("player");
-  else if(playerArmy<=0) endGame("enemy");
-  else enemyTurn();
-};
-
-// دفاع اللاعب
-defendBtn.onclick = ()=>{
-  if(gameOver) return;
-  playerDefend = true;
-  gameMessage("🛡️ أنت في وضع الدفاع!", "#6ef58e");
-  updateStats();// إعداد
-let playerArmy = 20;
-let enemyArmy = 20;
-let playerDefend = false;
-let enemyDefend = false;
-let gameOver = false;
-
-const playerArmyEl = document.getElementById("player-army");
-const enemyArmyEl = document.getElementById("enemy-army");
-const attackBtn = document.getElementById("attack-btn");
-const defendBtn = document.getElementById("defend-btn");
-const restartBtn = document.getElementById("restart-btn");
-const msgEl = document.getElementById("msg");
-const canvas = document.getElementById("battle-canvas");
-const ctx = canvas.getContext("2d");
-
-// رسم الجيوش بشكل عصري
-function drawArmies() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  // جيش اللاعب: دوائر زرقاء
-  for(let i=0; i<playerArmy; i++) {
-    let row = Math.floor(i/5), col = i%5;
-    ctx.beginPath();
-    ctx.arc(60+col*25, 220-row*24, 12, 0, 2*Math.PI);
-    ctx.fillStyle = playerDefend ? "#38f" : "#66e2ff";
-    ctx.strokeStyle = "#0f5";
-    ctx.lineWidth = playerDefend ? 3 : 1;
-    ctx.fill();
-    ctx.stroke();
-  }
-  // جيش العدو: دوائر حمراء
-  for(let i=0; i<enemyArmy; i++) {
-    let row = Math.floor(i/5), col = i%5;
-    ctx.beginPath();
-    ctx.arc(340-col*25, 70+row*24, 12, 0, 2*Math.PI);
-    ctx.fillStyle = enemyDefend ? "#f44" : "#ff4f7a";
-    ctx.strokeStyle = "#f20";
-    ctx.lineWidth = enemyDefend ? 3 : 1;
-    ctx.fill();
-    ctx.stroke();
-  }
-  // أرض المعركة
-  ctx.beginPath();
-  ctx.moveTo(0, 150); ctx.lineTo(400, 150);
-  ctx.strokeStyle = "#fff3";
-  ctx.setLineDash([6,6]);
-  ctx.lineWidth = 2;
-  ctx.stroke();
-  ctx.setLineDash([]);
-}
-
-function updateStats() {
-  playerArmyEl.textContent = playerArmy;
-  enemyArmyEl.textContent = enemyArmy;
-  drawArmies();
-}
-
-function gameMessage(txt, color="#fff") {
-  msgEl.textContent = txt;
-  msgEl.style.color = color;
-}
-
-function endGame(winner) {
-  gameOver = true;
-  attackBtn.style.display = "none";
-  defendBtn.style.display = "none";
-  restartBtn.style.display = "inline-block";
-  if(winner === "player") gameMessage("فزت! 🏆", "#0f0");
-  else if(winner === "enemy") gameMessage("خسرت! 👹", "#ff4f7a");
-  else gameMessage("تعادل!", "#ffe066");
-}
-
-// ذكاء اصطناعي بسيط: عشوائي يهاجم أو يدافع
-function enemyTurn() {
-  if(gameOver) return;
-  setTimeout(()=>{
-    if(enemyArmy <= 0) return endGame("player");
-    if(playerArmy <= 0) return endGame("enemy");
-    let action = Math.random()<0.5 ? "attack" : "defend";
-    if(action==="attack") {
-      enemyDefend = false;
-      let hit = Math.floor(Math.random()*3)+2;
-      if(playerDefend) hit = Math.floor(hit/2);
-      playerArmy -= hit;
-      if(playerArmy<0) playerArmy=0;
-      gameMessage("👹 العدو هجم عليك وخسرت " + hit + " جندي!", "#ffb347");
-      playerDefend = false;
-    } else {
-      enemyDefend = true;
-      gameMessage("العدو في وضع الدفاع!", "#aaa");
-    }
-    updateStats();
-    if(playerArmy<=0) endGame("enemy");
-    else if(enemyArmy<=0) endGame("player");
-  }, 1200);
-}
-
-// هجوم اللاعب
-attackBtn.onclick = ()=>{
-  if(gameOver) return;
-  let hit = Math.floor(Math.random()*4)+2;
-  if(enemyDefend) hit = Math.floor(hit/2);
-  enemyArmy -= hit;
-  if(enemyArmy<0) enemyArmy=0;
-  gameMessage("🚀 هاجمت العدو وخسر " + hit + " جندي!", "#0ff");
-  enemyDefend = false;
-  updateStats();
-  if(enemyArmy<=0) endGame("player");
-  else if(playerArmy<=0) endGame("enemy");
-  else enemyTurn();
-};
-
-// دفاع اللاعب
-defendBtn.onclick = ()=>{
-  if(gameOver) return;
-  playerDefend = true;
-  gameMessage("🛡️ أنت في وضع الدفاع!", "#6ef58e");
-  updateStats();
-  enemyTurn();
-};
-
-restartBtn.onclick = ()=>{
-  playerArmy = 20;
-  enemyArmy = 20;
-  playerDefend = false;
-  enemyDefend = false;
+function resetGame() {
+  mobs = [];
+  gates = [];
+  mobCount = 10 + (level-1)*2;
+  baseHP = 15 + (level-1)*4;
+  baseMaxHP = baseHP;
+  firing = false;
+  fireX = canvas.width/2;
+  fireTargetX = canvas.width/2;
   gameOver = false;
-  attackBtn.style.display = "inline-block";
-  defendBtn.style.display = "inline-block";
   restartBtn.style.display = "none";
-  gameMessage("المعركة بدأت! هاجم أو دافع!");
-  updateStats();
+  generateGateWave();
+  updateUI();
+  draw();
+}
+function updateUI() {
+  mobCountEl.textContent = mobCount;
+  scoreEl.textContent = score;
+  levelEl.textContent = level;
+}
+function fireMob() {
+  if (mobCount > 0 && !gameOver) {
+    mobs.push({x: fireX, y: 520, size:14, color: mobColor, active:true});
+    mobCount--;
+    updateUI();
+  }
+}
+function generateGateWave() {
+  // توليد بوابات عشوائية
+  gates = [];
+  for(let i=0; i<4; i++) {
+    let type = Math.random();
+    let gate;
+    if(type<0.3)      gate = {type:"mul", v:2, label:"x2", color:"#3ac"};
+    else if(type<0.5) gate = {type:"add", v:10+level*3, label:"+"+(10+level*3), color:"#2c7"};
+    else if(type<0.7) gate = {type:"sub", v:Math.max(3,level*2), label:"-"+Math.max(3,level*2), color:"#f66"};
+    else              gate = {type:"div", v:2, label:"÷2", color:"#fd6"};
+    let x = 60 + i*90;
+    let y = 180 + Math.random()*70;
+    gates.push({
+      ...gate,
+      x, y, w:62, h:30, used:false
+    });
+  }
+}
+function draw() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // الأرضية
+  ctx.fillStyle = "#d0ecff";
+  ctx.fillRect(0, 560, 400, 40);
+  // القاعدة
+  ctx.save();
+  ctx.translate(200, 70);
+  ctx.fillStyle = "#e74c3c";
+  ctx.strokeStyle = "#fff";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(0,0,32,0,Math.PI*2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#fff";
+  ctx.font = "bold 15px Cairo";
+  ctx.textAlign = "center";
+  ctx.fillText("قاعدة",0,5);
+  // شريط الصحة
+  ctx.fillStyle = "#222";
+  ctx.fillRect(-30,35,60,10);
+  ctx.fillStyle = "#0f3";
+  ctx.fillRect(-30,35,60*(baseHP/baseMaxHP),10);
+  ctx.strokeStyle = "#fff";
+  ctx.strokeRect(-30,35,60,10);
+  ctx.restore();
+  // رسم البوابات
+  gates.forEach(g=>{
+    ctx.save();
+    ctx.globalAlpha = g.used ? 0.35 : 1;
+    ctx.fillStyle = g.color;
+    ctx.fillRect(g.x-30, g.y-14, g.w, g.h);
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(g.x-30,g.y-14,g.w,g.h);
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 19px Cairo";
+    ctx.textAlign = "center";
+    ctx.fillText(g.label, g.x, g.y+7);
+    ctx.restore();
+  });
+  // رسم الجنود
+  mobs.forEach(m=>{
+    if(!m.active) return;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(m.x,m.y,m.size,0,Math.PI*2);
+    ctx.fillStyle = m.color;
+    ctx.shadowColor = "#19a3ff";
+    ctx.shadowBlur = 10;
+    ctx.fill();
+    ctx.restore();
+  });
+  // المدفع
+  ctx.save();
+  ctx.translate(fireX,540);
+  ctx.fillStyle = "#2091fa";
+  ctx.fillRect(-14,16,28,16);
+  ctx.beginPath();
+  ctx.arc(0,13,22,Math.PI*0.8,Math.PI*2.2);
+  ctx.fill();
+  ctx.restore();
+  // رسالة خسارة أو فوز
+  if(gameOver){
+    ctx.save();
+    ctx.globalAlpha=0.9;
+    ctx.fillStyle="#fff";
+    ctx.fillRect(60,230,280,90);
+    ctx.fillStyle="#e74c3c";
+    ctx.font="bold 32px Cairo";
+    ctx.textAlign="center";
+    ctx.fillText(baseHP<=0?"فزت!":"انتهت المحاولة!",200,270);
+    ctx.fillStyle="#222";
+    ctx.font="bold 20px Cairo";
+    ctx.fillText(baseHP<=0?"انتقلت للمرحلة التالية!":"حاول مجددًا!",200,300);
+    ctx.restore();
+  }
+}
+function updateMobs() {
+  mobs.forEach(m=>{
+    if(m.active) m.y -= 5;
+    // التصادم مع القاعدة
+    if(m.active && Math.hypot(m.x-200,m.y-70)<38) {
+      baseHP--;
+      score+=2;
+      m.active=false;
+      updateUI();
+      if(baseHP<=0) winLevel();
+    }
+    // التصادم مع البوابات
+    gates.forEach(g=>{
+      if(!g.used && m.active
+        && m.x>g.x-30 && m.x<g.x+32
+        && m.y>g.y-14 && m.y<g.y+16){
+        g.used=true;
+        switch(g.type){
+          case "mul": mobCount *= g.v; break;
+          case "add": mobCount += g.v; break;
+          case "sub": mobCount = Math.max(1,mobCount-g.v); break;
+          case "div": mobCount = Math.max(1,Math.floor(mobCount/g.v)); break;
+        }
+        score+=1;
+        updateUI();
+      }
+    });
+    // خارج الشاشة
+    if(m.y<0) m.active=false;
+  });
+  mobs = mobs.filter(m=>m.active);
+}
+function lose() {
+  gameOver=true;
+  restartBtn.style.display="inline-block";
+  draw();
+}
+function winLevel() {
+  gameOver=true;
+  score+=level*10;
+  level++;
+  restartBtn.textContent="التالي";
+  restartBtn.style.display="inline-block";
+  draw();
+}
+function gameLoop() {
+  if(!gameOver){
+    updateMobs();
+    if(mobCount<=0 && mobs.length==0 && baseHP>0) lose();
+  }
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+// تحريك المدفع
+canvas.addEventListener("pointerdown",e=>{
+  firing=true;
+  moveTo(e);
+});
+canvas.addEventListener("pointermove",e=>{
+  if(firing) moveTo(e);
+});
+canvas.addEventListener("pointerup",()=>{firing=false;});
+canvas.addEventListener("pointerleave",()=>{firing=false;});
+function moveTo(e){
+  let rect=canvas.getBoundingClientRect();
+  let x=(e.touches?e.touches[0].clientX:e.clientX)-rect.left;
+  x=Math.max(32,Math.min(368,x));
+  fireTargetX=x;
+  fireX=x;
+  if(!gameOver) fireMob();
+}
+// إعادة اللعب
+restartBtn.onclick=()=>{
+  if(baseHP<=0){ // إذا فاز ينتقل للمرحلة التالية
+    resetGame();
+  }else{ // إذا خسر يبدأ نفس المرحلة
+    level=Math.max(1,level);
+    resetGame();
+  }
 };
-
-window.onload = ()=>{
-  gameMessage("المعركة بدأت! هاجم أو دافع!");
-  updateStats();
-};
-  enemyTurn();
-};
-
-restartBtn.onclick = ()=>{
-  playerArmy = 20;
-  enemyArmy = 20;
-  playerDefend = false;
-  enemyDefend = false;
-  gameOver = false;
-  attackBtn.style.display = "inline-block";
-  defendBtn.style.display = "inline-block";
-  restartBtn.style.display = "none";
-  gameMessage("المعركة بدأت! هاجم أو دافع!");
-  updateStats();
-};
-
-window.onload = ()=>{
-  gameMessage("المعركة بدأت! هاجم أو دافع!");
-  updateStats();
-};
+// بدء اللعبة
+resetGame();
+gameLoop();
