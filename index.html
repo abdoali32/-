@@ -2,46 +2,31 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
+  <title>معركة الجيوش العصرية</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>لدبابة - لعبة استراتيجية عربية</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- شاشة البداية -->
-  <div id="start-screen" class="screen">
-    <h1>لدبابة</h1>
-    <p>كون جيشك الأزرق واهزم الأعداء!</p>
-    <button id="start-btn">ابدأ اللعب</button>
-    <button id="shop-btn">المتجر</button>
-    <div class="tips">
-      <h2>نصيحة سريعة:</h2>
-      <p>ركز على بوابات الضرب (x) أكثر من الجمع (+)!</p>
+  <div class="main-container">
+    <h1>⚔️ معركة الجيوش ⚔️</h1>
+    <div class="battle-container">
+      <canvas id="battle-canvas" width="400" height="300"></canvas>
     </div>
-  </div>
-  <!-- شاشة اللعبة -->
-  <div id="game-screen" class="screen hidden">
-    <canvas id="game-canvas" width="360" height="600"></canvas>
-    <div id="hud">
-      <div id="coins">عملات: <span id="coin-count">0</span></div>
-      <div id="army">الجنود: <span id="army-count">10</span></div>
-      <div id="level">المرحلة: <span id="level-count">1</span></div>
-      <button id="pause-btn">إيقاف</button>
+    <div class="dashboard">
+      <div class="stats">
+        <div>جيشك 👨‍✈️: <span id="player-army">20</span></div>
+        <div>جيش العدو 👹: <span id="enemy-army">20</span></div>
+      </div>
+      <div class="controls">
+        <button id="attack-btn">هجوم سريع 🚀</button>
+        <button id="defend-btn">دفاع 🛡️</button>
+        <button id="restart-btn" style="display:none;">إعادة</button>
+      </div>
     </div>
-  </div>
-  <!-- شاشة نهاية المرحلة -->
-  <div id="end-screen" class="screen hidden">
-    <h1 id="end-title"></h1>
-    <p id="end-msg"></p>
-    <button id="next-btn">التالي</button>
-    <button id="to-shop-btn">المتجر</button>
-    <button id="restart-btn">الرئيسية</button>
-  </div>
-  <!-- شاشة المتجر -->
-  <div id="shop-screen" class="screen hidden">
-    <h1>المتجر</h1>
-    <div id="shop-coins">عملاتك: <span id="shop-coin-count">0</span></div>
-    <div class="shop-list" id="shop-list"></div>
-    <button id="close-shop-btn">إغلاق</button>
+    <div class="msg" id="msg"></div>
+    <footer>
+      <small>تصميم وتجربة عصرية - يمكنك تطوير الأكواد كما تريد!</small>
+    </footer>
   </div>
   <script src="game.js"></script>
 </body>
