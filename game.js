@@ -1,30 +1,28 @@
-// Mob Control - نسخة عربية مبسطة
-const canvas = document.getElementById("game-canvas");
+// Mob Control عربية - نسخة مبسطة قريبة من اللعبة الأصلية
+const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
-const mobCountEl = document.getElementById("mob-count");
+
+const mobCountEl = document.getElementById("mobCount");
 const scoreEl = document.getElementById("score");
 const levelEl = document.getElementById("level");
 const restartBtn = document.getElementById("restart");
 
-let level = 1, score = 0;
+let level = 1, score = 0, mobCount = 10, baseHP = 15, baseMaxHP = 15;
 let mobs = [], gates = [];
-let mobCount = 10, mobColor = "#35aaff";
-let baseHP = 15, baseMaxHP = 15;
-let firing = false, fireX = canvas.width/2, fireTargetX = canvas.width/2;
+let firing = false, fireX = canvas.width/2;
 let gameOver = false;
 
 function resetGame() {
   mobs = [];
   gates = [];
-  mobCount = 10 + (level-1)*2;
+  mobCount = 10 + (level-1)*3;
   baseHP = 15 + (level-1)*4;
   baseMaxHP = baseHP;
   firing = false;
   fireX = canvas.width/2;
-  fireTargetX = canvas.width/2;
   gameOver = false;
   restartBtn.style.display = "none";
-  generateGateWave();
+  createGates();
   updateUI();
   draw();
 }
@@ -33,29 +31,25 @@ function updateUI() {
   scoreEl.textContent = score;
   levelEl.textContent = level;
 }
-function fireMob() {
-  if (mobCount > 0 && !gameOver) {
-    mobs.push({x: fireX, y: 520, size:14, color: mobColor, active:true});
-    mobCount--;
-    updateUI();
-  }
-}
-function generateGateWave() {
-  // توليد بوابات عشوائية
+function createGates() {
   gates = [];
   for(let i=0; i<4; i++) {
-    let type = Math.random();
+    let t = Math.random();
     let gate;
-    if(type<0.3)      gate = {type:"mul", v:2, label:"x2", color:"#3ac"};
-    else if(type<0.5) gate = {type:"add", v:10+level*3, label:"+"+(10+level*3), color:"#2c7"};
-    else if(type<0.7) gate = {type:"sub", v:Math.max(3,level*2), label:"-"+Math.max(3,level*2), color:"#f66"};
-    else              gate = {type:"div", v:2, label:"÷2", color:"#fd6"};
-    let x = 60 + i*90;
-    let y = 180 + Math.random()*70;
-    gates.push({
-      ...gate,
-      x, y, w:62, h:30, used:false
-    });
+    if(t<0.3)      gate = {type:"mul", v:2, label:"x2", color:"#3ac"};
+    else if(t<0.5) gate = {type:"add", v:10+level*2, label:"+"+(10+level*2), color:"#2c7"};
+    else if(t<0.7) gate = {type:"sub", v:Math.max(3,level*2), label:"-"+Math.max(3,level*2), color:"#f66"};
+    else           gate = {type:"div", v:2, label:"÷2", color:"#fd6"};
+    let x = 70 + i*86;
+    let y = 200 + Math.random()*60;
+    gates.push({...gate, x, y, w:60, h:28, used:false});
+  }
+}
+function fireMob() {
+  if (mobCount > 0 && !gameOver) {
+    mobs.push({x: fireX, y: 520, size:14, color: "#35aaff", active:true});
+    mobCount--;
+    updateUI();
   }
 }
 function draw() {
@@ -76,7 +70,7 @@ function draw() {
   ctx.fillStyle = "#fff";
   ctx.font = "bold 15px Cairo";
   ctx.textAlign = "center";
-  ctx.fillText("قاعدة",0,5);
+  ctx.fillText("العدو",0,5);
   // شريط الصحة
   ctx.fillStyle = "#222";
   ctx.fillRect(-30,35,60,10);
@@ -88,14 +82,14 @@ function draw() {
   // رسم البوابات
   gates.forEach(g=>{
     ctx.save();
-    ctx.globalAlpha = g.used ? 0.35 : 1;
+    ctx.globalAlpha = g.used ? 0.28 : 1;
     ctx.fillStyle = g.color;
     ctx.fillRect(g.x-30, g.y-14, g.w, g.h);
     ctx.strokeStyle = "#fff";
     ctx.lineWidth = 2;
     ctx.strokeRect(g.x-30,g.y-14,g.w,g.h);
     ctx.fillStyle = "#fff";
-    ctx.font = "bold 19px Cairo";
+    ctx.font = "bold 18px Cairo";
     ctx.textAlign = "center";
     ctx.fillText(g.label, g.x, g.y+7);
     ctx.restore();
@@ -108,7 +102,7 @@ function draw() {
     ctx.arc(m.x,m.y,m.size,0,Math.PI*2);
     ctx.fillStyle = m.color;
     ctx.shadowColor = "#19a3ff";
-    ctx.shadowBlur = 10;
+    ctx.shadowBlur = 8;
     ctx.fill();
     ctx.restore();
   });
@@ -124,7 +118,7 @@ function draw() {
   // رسالة خسارة أو فوز
   if(gameOver){
     ctx.save();
-    ctx.globalAlpha=0.9;
+    ctx.globalAlpha=0.92;
     ctx.fillStyle="#fff";
     ctx.fillRect(60,230,280,90);
     ctx.fillStyle="#e74c3c";
@@ -171,6 +165,7 @@ function updateMobs() {
 }
 function lose() {
   gameOver=true;
+  restartBtn.textContent="إعادة اللعب";
   restartBtn.style.display="inline-block";
   draw();
 }
@@ -204,15 +199,13 @@ function moveTo(e){
   let rect=canvas.getBoundingClientRect();
   let x=(e.touches?e.touches[0].clientX:e.clientX)-rect.left;
   x=Math.max(32,Math.min(368,x));
-  fireTargetX=x;
   fireX=x;
   if(!gameOver) fireMob();
 }
-// إعادة اللعب
 restartBtn.onclick=()=>{
-  if(baseHP<=0){ // إذا فاز ينتقل للمرحلة التالية
+  if(baseHP<=0){ // فزت: انتقل للمرحلة التالية
     resetGame();
-  }else{ // إذا خسر يبدأ نفس المرحلة
+  }else{ // خسرت: أعد المرحلة
     level=Math.max(1,level);
     resetGame();
   }
