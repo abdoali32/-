@@ -5,53 +5,7 @@ body {
   text-align: center;
   margin: 0;
   padding: 0;
-}
-h1 {
-  font-size: 2em;
-  margin: 18px 0 8px 0;
-  color: #66e2ff;
-  text-shadow: 0 2px 20px #000a;
-}
-canvas#game {
-  background: linear-gradient(180deg,#e8f6ff 78%,#b6e2ff 100%);
-  border-radius: 18px;
-  box-shadow: 0 4px 16px #1113;
-  margin: 0 auto 12px auto;
-  display: block;
-  border: 3px solid #66e2ff55;
-  touch-action: none;
-}
-.hud {
-  width: 400px;
-  margin: 0 auto 12px auto;
-  background: #0f253d66;
-  padding: 7px 12px;
-  border-radius: 13px;
-  display: flex;
-  justify-content: space-between;
-  font-size: 1.19em;
-}
-.hud b { color: #66e2ff; }
-button {
-  font-size: 1.15em;
-  background: linear-gradient(90deg,#2196f3 50%,#66e2ff 100%);
-  color: #fff;
-  border: none;
-  padding: 12px 26px;
-  border-radius: 10px;
-  cursor: pointer;
-  margin-top: 10px;
-  box-shadow: 0 2px 12px #1112;
-  transition: background 0.15s, transform 0.1s;
-}
-button:hover {
-  backgrobody {
-  background: linear-gradient(135deg,#0f2027,#2c5364);
-  color: #fff;
-  font-family: 'Cairo', Tahoma, Arial, sans-serif;
-  text-align: center;
-  margin: 0;
-  padding: 0;
+  user-select: none;
 }
 h1 {
   font-size: 2em;
@@ -93,11 +47,6 @@ button {
 }
 button:hover {
   background: linear-gradient(90deg,#1c6bb3 60%,#43b5d7 100%);
-  transform: scale(1.05);
-}
-@media (max-width: 420px) {
-  canvas#game, .hud { width: 98vw !important; min-width: 0; }
-}und: linear-gradient(90deg,#1c6bb3 60%,#43b5d7 100%);
   transform: scale(1.05);
 }
 @media (max-width: 420px) {
