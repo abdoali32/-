@@ -2,26 +2,23 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Mob Control عربية مطورة</title>
+  <title>Mob Control عربية متطورة</title>
   <meta name="viewport" content="width=430, initial-scale=1.0, user-scalable=no">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Main Menu -->
   <div id="main-menu" class="main-menu active">
     <h2>🔥 Mob Control عربية 🔥</h2>
     <div class="coins-bar">
-      <img src="https://cdn-icons-png.flaticon.com/512/138/138292.png" alt="coin" class="coin-icon">
+      <img src="https://cdn-icons-png.flaticon.com/512/138/138292.png" alt="coin" class="coin-icon coins-animated">
       <span id="coins">0</span>
     </div>
     <button onclick="startGame()">ابدأ اللعب</button>
     <button onclick="openShop()">المتجر</button>
     <button onclick="openSettings()">الإعدادات</button>
   </div>
-  <!-- Game Area -->
   <div id="game-area" class="game-area">
     <div class="hud">
-      <span>الجنود: <b id="mobCount">10</b></span>
       <span>النقاط: <b id="score">0</b></span>
       <span>المرحلة: <b id="level">1</b></span>
       <span>العملات: <img src="https://cdn-icons-png.flaticon.com/512/138/138292.png" alt="coin" class="coin-icon"><b id="coins-hud">0</b></span>
@@ -31,7 +28,6 @@
     <button id="restart" style="display:none;">إعادة اللعب</button>
     <button class="back-btn" onclick="backToMenu()">رجوع للقائمة</button>
   </div>
-  <!-- Shop Popup -->
   <div id="shop" class="popup">
     <div class="popup-content">
       <h3>المتجر</h3>
@@ -40,13 +36,12 @@
         <button onclick="buyUpgrade('health')">شراء</button>
       </div>
       <div class="shop-item">
-        <span>زيادة عدد الجنود عند البدء (4 عملة)</span>
-        <button onclick="buyUpgrade('mob')">شراء</button>
+        <span>زيادة سرعة الجنود (4 عملة)</span>
+        <button onclick="buyUpgrade('speed')">شراء</button>
       </div>
       <button class="close-btn" onclick="closeShop()">إغلاق</button>
     </div>
   </div>
-  <!-- Settings Popup -->
   <div id="settings" class="popup">
     <div class="popup-content">
       <h3>الإعدادات</h3>
